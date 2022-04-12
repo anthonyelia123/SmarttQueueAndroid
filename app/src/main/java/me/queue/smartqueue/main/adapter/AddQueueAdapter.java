@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import me.queue.smartqueue.R;
 import me.queue.smartqueue.createeditqueue.CreateEditActivity;
 import me.queue.smartqueue.main.data.models.QueueModel;
+import me.queue.smartqueue.userinfo.QueueInfoActivity;
 
 public class AddQueueAdapter extends RecyclerView.Adapter<AddQueueAdapter.AddQueuesViewHolder> {
     private final ArrayList<QueueModel> queues;
@@ -43,6 +44,11 @@ public class AddQueueAdapter extends RecyclerView.Adapter<AddQueueAdapter.AddQue
             i.putExtra("queue",queueModel);
             context.startActivity(i);
         });
+        holder.btnView.setOnClickListener(v -> {
+            Intent i = new Intent(context, QueueInfoActivity.class);
+            i.putExtra("queue",queueModel);
+            context.startActivity(i);
+        });
     }
 
 
@@ -53,12 +59,13 @@ public class AddQueueAdapter extends RecyclerView.Adapter<AddQueueAdapter.AddQue
 
     public static class AddQueuesViewHolder extends RecyclerView.ViewHolder{
         private final TextView tvQueueName;
-        private final Button btnEdit;
+        private final Button btnEdit,btnView;
 
         public AddQueuesViewHolder(@NonNull View itemView) {
             super(itemView);
             tvQueueName = itemView.findViewById(R.id.tvQueueName);
             btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnView = itemView.findViewById(R.id.btnView);
         }
 
 

@@ -12,10 +12,8 @@ public class GetCurrentUser {
     public GetCurrentUser(GetCurrentUserCallback callback) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        assert user != null;
         DocumentReference docRef = db.collection("users").document(user.getUid());
         docRef.addSnapshotListener((value, error) -> {
-            assert value != null;
             UserModel model = new UserModel(
                     value.getString("firstname"),
                     value.getString("lastname"),

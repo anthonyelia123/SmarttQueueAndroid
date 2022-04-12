@@ -20,11 +20,11 @@ public class SplashActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener mAuthListener;
     private ActivitySplashBinding binding;
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        firebaseAuth.signOut();
-    }
+//    @Override
+//    protected void onPostResume() {
+//        super.onPostResume();
+//        firebaseAuth.signOut();
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
