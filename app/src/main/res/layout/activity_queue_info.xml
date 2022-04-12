@@ -5,5 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".userinfo.QueueInfoActivity">
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieAnimationView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:lottie_rawRes="@raw/empty"
+        app:lottie_repeatMode="restart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvUsers"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,14 +14,14 @@ public class LocalFunctions {
     public LocalFunctions() {
     }
 
-    public String getTrimmedText(EditText field){
+    public static String getTrimmedText(EditText field){
         return field.getText().toString().trim();
     }
 
-    public void errorToast(Context context, String error){
+    public static void errorToast(Context context, String error){
         Toasty.error(context,error,Toasty.LENGTH_SHORT).show();
     }
-    public void successToast(Context context, String success){
+    public static void successToast(Context context, String success){
         Toasty.error(context,success,Toasty.LENGTH_SHORT).show();
     }
     public static QueueAndServiceTime getQueueTime(QueueModel queueModel){

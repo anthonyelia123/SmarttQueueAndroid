@@ -43,6 +43,8 @@ public class AddQueueFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         binding.srlswipe.setRefreshing(true);
+        binding.animationView.setVisibility(View.VISIBLE);
+        binding.rvMyQueues.setVisibility(View.GONE);
         initRecycler();
         binding.addEditQueue.setOnClickListener(V ->{
             startActivity(new Intent(requireActivity(), CreateEditActivity.class));
@@ -52,12 +54,18 @@ public class AddQueueFragment extends Fragment {
 
     private void initRecycler(){
         new GetAllQueuesAsync(queueModels -> {
+            binding.srlswipe.setRefreshing(false);
             if (queueModels.size()>0){
+                binding.animationView.setVisibility(View.GONE);
+                binding.rvMyQueues.setVisibility(View.VISIBLE);
                 AddQueueAdapter adapter = new AddQueueAdapter(queueModels,requireActivity());
                 binding.rvMyQueues.setHasFixedSize(true);
                 binding.rvMyQueues.setLayoutManager(new LinearLayoutManager(requireActivity()));
                 binding.rvMyQueues.setAdapter(adapter);
-                binding.srlswipe.setRefreshing(false);
+            }else {
+                //TODO: show empty list
+                binding.animationView.setVisibility(View.VISIBLE);
+                binding.rvMyQueues.setVisibility(View.GONE);
             }
         });
     }

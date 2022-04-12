@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 
+import me.queue.smartqueue.common.async.CheckBannedUsersAsync;
 import me.queue.smartqueue.databinding.ActivityLoginBinding;
 import me.queue.smartqueue.main.ui.activity.MainActivity;
 import me.queue.smartqueue.signup.SignupActivity;
@@ -87,26 +88,21 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             //if successful => move to main activity
-                            FirebaseUser user = firebaseAuth.getCurrentUser();
-                            Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(i);
-                            finish();
+                            new CheckBannedUsersAsync(firebaseAuth.getCurrentUser().getUid(),isBanned->{
+                                if (isBanned){
+                                    LocalFunctions.errorToast(LoginActivity.this,"User is banned");
+                                    FirebaseAuth.getInstance().signOut();
+                                }else {
+                                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(i);
+                                    finish();
+                                    binding.progressbar.setVisibility(View.GONE);
+                                }
+                            });
+
                             binding.progressbar.setVisibility(View.GONE);
-                        } else {
-                            binding.progressbar.setVisibility(View.GONE);
-
-                            try {
-                                throw task.getException();
-                            } catch (FirebaseAuthUserCollisionException e) {
-                                // show error toast ot user ,user already exist
-
-                            } catch (FirebaseNetworkException e) {
-                                //show error tost network exception
-
-                            } catch (Exception e) {
-                                Log.e("log", e.getMessage());
-                            }
 
 
                             // updateUI(null);
