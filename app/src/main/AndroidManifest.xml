@@ -8,14 +8,16 @@
 
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/splash1"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:hardwareAccelerated="false"
-        android:largeHeap="true"
         android:theme="@style/Theme.MyApplication">
-
+        <activity
+            android:name=".userinfo.QueueInfoActivity"
+            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -45,14 +47,12 @@
             android:name=".intro.ui.activity.IntroActivity"
             android:exported="false"
             android:label="@string/title_activity_intro" />
-
         <activity
             android:name=".main.ui.activity.MainActivity"
             android:exported="true" />
         <activity
             android:name=".login.LoginActivity"
             android:exported="true" />
-
         <activity
             android:name=".splash.SplashActivity"
             android:exported="true">
