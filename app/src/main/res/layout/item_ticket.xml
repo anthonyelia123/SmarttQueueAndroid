@@ -169,6 +169,17 @@
             android:text="Next"
             android:visibility="gone"
             android:textSize="12sp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnQuit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cl_center"
+            android:background="@color/red"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Quit"
+            android:visibility="gone"
+            android:textSize="12sp" />
 
     </com.mreram.ticketview.TicketView>
 
