@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "928296769747",
+    "firebase_url": "https://smart-queue-f9414-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "smart-queue-f9414",
+    "storage_bucket": "smart-queue-f9414.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:928296769747:android:ec7d84b125f33b9f3d1c26",
+        "android_client_info": {
+          "package_name": "me.queue.smartqueue"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "928296769747-mojt52odu21ef8mjos04779mpn1r3apt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "me.queue.smartqueue",
+            "certificate_hash": "c300f410f9e0d612bd752254e61364828bbc8cb8"
+          }
+        },
+        {
+          "client_id": "928296769747-as7vmnbdlirmlkp9snkkbuvn1bejvkfk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDts1WtCWKMqkovBpZZ4Sxh1cillECXVNc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "928296769747-as7vmnbdlirmlkp9snkkbuvn1bejvkfk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

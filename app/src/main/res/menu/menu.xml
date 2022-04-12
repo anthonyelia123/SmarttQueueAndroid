@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="Filter by:"
+        >
+        <menu>
+
+            <item
+                android:id="@+id/all"
+                android:title="All"
+                android:checkable="true"
+                app:actionLayout="@layout/widget_check" />
+            <item
+                android:id="@+id/gas"
+                android:title="Gas Station"
+                android:checkable="true"
+                app:actionLayout="@layout/widget_check" />
+
+            <item
+                android:id="@+id/pharmacy"
+                android:title="Pharmacy"
+                android:checkable="true"
+                app:actionLayout="@layout/widget_check" />
+
+            <item
+                android:id="@+id/bakery"
+                android:title="Bakery"
+                android:checkable="true"
+                app:actionLayout="@layout/widget_check" />
+
+            <item
+                android:id="@+id/hospital"
+                android:title="Hospital"
+                android:checkable="true"
+                app:actionLayout="@layout/widget_check" />
+
+            <item
+                android:id="@+id/school"
+                android:title="School"
+                android:checkable="true"
+                app:actionLayout="@layout/widget_check" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/logout"
+        android:icon="@drawable/three_dots"
+        android:title="Logout"
+        />
+</menu>
+

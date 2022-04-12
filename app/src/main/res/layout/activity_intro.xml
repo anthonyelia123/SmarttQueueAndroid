@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="?attr/actionBarSize">
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="400dp" />
+
+    <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+        android:id="@+id/dot1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="50dp"
+        app:dotsColor="@android:color/holo_blue_dark"
+        app:dotsSize="15dp"
+        app:dotsSpacing="5dp"
+        app:progressMode="true" />
+
+    <com.spark.submitbutton.SubmitButton
+        android:id="@+id/getStarted"
+        android:layout_width="250dp"
+        android:layout_height="150dp"
+        android:text="Get Started"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/gray"
+        app:sub_btn_background="@color/white"
+        app:sub_btn_duration="500"
+        app:sub_btn_line_color="#1abc9c"
+        app:sub_btn_ripple_color="#1abc9c"
+        app:sub_btn_tick_color="@color/white" />
+
+
+</LinearLayout>
