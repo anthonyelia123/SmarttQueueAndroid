@@ -8,8 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.zxing.WriterException;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -72,21 +77,42 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
             new GetJoinAsync(current.getQueueId(), process -> {
                 if(current.isAdmin){
-                    if(process != null){
-                        holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers(), 1));
+                    final int[] serverSelected = {1};
+                    holder.spinner.setVisibility(View.VISIBLE);
+                    int nbOfServers = Integer.parseInt(current.getCounter());
+                    ArrayList<String> servers = new ArrayList<>();
+                    for(int i = 0; i < nbOfServers; i++){
+                        servers.add("server "+ ( i + 1));
                     }
+
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter(context, android.R.layout.simple_spinner_item, servers);
+                    arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    holder.spinner.setAdapter(arrayAdapter);
+                    holder.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            serverSelected[0] = position + 1;
+                            if(process != null){
+                                holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers(), position + 1));
+                            }
+                        }
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                        }
+                    });
+
                     holder.btnNext.setVisibility(View.VISIBLE);
                     holder.btnNext.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if(process != null && process.getUsers() != null && getWaitingPeople(process.getUsers(), 1) > 0){
+                            if(process != null && process.getUsers() != null && getWaitingPeople(process.getUsers(), serverSelected[0]) > 0){
                                 HashMap<String, Object> hash = new HashMap<>();
                                 String queueOwner = process.getQueueOwner();
                                 List<UserJoinStatus> userJoinStatus = process.getUsers();
                                 String uId = "";
                                 int count = 0;
                                 for(UserJoinStatus curr : userJoinStatus){
-                                    if(!curr.isFinished() && count == 0){
+                                    if(!curr.isFinished() && count == 0 && curr.getServer() == serverSelected[0]){
                                         curr.setFinished(true);
                                         uId = curr.getUserId();
                                         count++;
@@ -128,6 +154,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                         }
                     });
                 } else {
+                    holder.tvWaiting.setVisibility(View.VISIBLE);
                     holder.btnJoin.setVisibility(View.VISIBLE);
                     holder.btnQuit.setOnClickListener(V ->{
                         HashMap<String, Object> hash2 = new HashMap<>();
@@ -230,6 +257,16 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
     @Override
     public int getItemCount() {
         return queues.size();
+    }
+
+    private int getServersNb(List<UserJoinStatus> userJoinStatuses) {
+        ArrayList<Integer> allServers = new ArrayList<>();
+        for(UserJoinStatus u : userJoinStatuses){
+            if(!allServers.contains(u.getServer())){
+                allServers.add(u.getServer());
+            }
+        }
+        return allServers.size();
     }
 
     private int getCorrespondingServer(List<UserJoinStatus> userJoinStatuses, int serverNb){
@@ -432,6 +469,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         private ImageView ivCode;
         private MaterialButton btnJoin, btnNext, btnQuit;
         private TextView tvEstimation,tvWaiting,tvMax,tvQueuing, txt_code;
+        private Spinner spinner;
 
         public TicketViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -444,6 +482,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
             btnNext = itemView.findViewById(R.id.btnNext);
             txt_code = itemView.findViewById(R.id.txt_code);
             btnQuit = itemView.findViewById(R.id.btnQuit);
+            spinner = itemView.findViewById(R.id.spinner);
         }
     }
 

@@ -118,7 +118,22 @@
                 android:text="Estimated Waiting Time"
                 android:textColor="#000"
                 android:textSize="12sp"
+                android:visibility="gone"
                 app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/tvEstimation"
+                app:layout_constraintRight_toLeftOf="@id/tvMax"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvEstimation" />
+
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="15dp"
+                android:visibility="gone"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintLeft_toRightOf="@+id/tvEstimation"
                 app:layout_constraintRight_toLeftOf="@id/tvMax"
@@ -143,7 +158,7 @@
                 android:src="@drawable/ic_home_black_24dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvWaiting" />
+                app:layout_constraintTop_toBottomOf="@+id/tvQueuing" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
