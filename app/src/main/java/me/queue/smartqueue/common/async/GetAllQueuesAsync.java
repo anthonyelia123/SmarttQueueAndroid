@@ -33,7 +33,7 @@ public class GetAllQueuesAsync {
                             document.getString("lambda"),
                             document.getString("field"),
                             document.getString("counter"),
-                            document.getString("finishedId")
+                            document.getString("joiningId")
                     ));
                 }
 

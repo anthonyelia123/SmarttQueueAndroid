@@ -73,13 +73,13 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
             new GetJoinAsync(current.getQueueId(), process -> {
                 if(current.isAdmin){
                     if(process != null){
-                        holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers()));
+                        holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers(), 1));
                     }
                     holder.btnNext.setVisibility(View.VISIBLE);
                     holder.btnNext.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if(process != null && process.getUsers() != null && getWaitingPeople(process.getUsers()) > 0){
+                            if(process != null && process.getUsers() != null && getWaitingPeople(process.getUsers(), 1) > 0){
                                 HashMap<String, Object> hash = new HashMap<>();
                                 String queueOwner = process.getQueueOwner();
                                 List<UserJoinStatus> userJoinStatus = process.getUsers();
@@ -111,7 +111,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                                     hash2.put("queueId", current.getQueueId());
                                     hash2.put("queueName", current.getQueueName());
                                     hash2.put("lambda", current.getLambda());
-                                    String joinedId = current.getFinishedId();
+                                    String joinedId = current.getJoiningId();
                                     String[] joinedIdsArray = joinedId.split(",");
                                     String remainingIds = "";
                                     for(String s : joinedIdsArray){
@@ -119,7 +119,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                                             remainingIds += s + ",";
                                         }
                                     }
-                                    hash2.put("finishedId", remainingIds);
+                                    hash2.put("joiningId", remainingIds);
                                     new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
                                         resetQueue(process, current.getQueueId(), current);
                                     });
@@ -143,7 +143,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                         hash2.put("queueId", current.getQueueId());
                         hash2.put("queueName", current.getQueueName());
                         hash2.put("lambda", current.getLambda());
-                        String joinedId = current.getFinishedId();
+                        String joinedId = current.getJoiningId();
                         String[] joinedIdsArray = joinedId.split(",");
                         StringBuilder remainingIds = new StringBuilder();
                         for(String s : joinedIdsArray){
@@ -151,7 +151,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                                 remainingIds.append(s).append(",");
                             }
                         }
-                        hash2.put("finishedId", remainingIds.toString());
+                        hash2.put("joiningId", remainingIds.toString());
                         new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
                             removeCurrentUserFromQueue(process, current.getQueueId());
                         });
@@ -171,30 +171,31 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                             hash2.put("queueId", current.getQueueId());
                             hash2.put("queueName", current.getQueueName());
                             hash2.put("lambda", current.getLambda());
-                            String joinedId = current.getFinishedId();
+                            String joinedId = current.getJoiningId();
                             joinedId += userId + ",";
-                            hash2.put("finishedId", joinedId);
+                            hash2.put("joiningId", joinedId);
                             new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
                                 listener.onJoin(current);
                             });
                     });
 
                     if(process != null){
+                        int server = getCorrespondingServer(process.getUsers(), Integer.parseInt(current.getCounter()));
                         QueueAndServiceTime queueAndServiceTime = LocalFunctions.getQueueTime(current);
                         double waitingTime = 0.0;
                         long remainingTime = 0;
 
-                        if(isDelayed(process.getUsers())){
+                        if(isDelayed(process.getUsers(), server)){//
                             holder.tvWaiting.setText("Waiting Time: Delayed");
                             holder.tvWaiting.setTextColor(Color.RED);
                         } else {
-                            waitingTime = getWaitingTime(queueAndServiceTime, process.getUsers());
+                            waitingTime = getWaitingTime(queueAndServiceTime, process.getUsers(), server);//
                             String joinTimeStr = getJoinDate(process.getUsers());
                             remainingTime = getRemainingMin(waitingTime, joinTimeStr);
                             if(remainingTime <= 0 && waitingTime > 0){
                                 holder.tvWaiting.setText("Waiting Time: Delayed");
                                 holder.tvWaiting.setTextColor(Color.RED);
-                                setAllDelayed(process, current.getQueueId());
+                                setAllDelayed(process, current.getQueueId(), server); //
                             } else {
                                 if(waitingTime == 0){
                                     holder.tvWaiting.setText("Waiting Time: " + 0 + " mins");
@@ -203,7 +204,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                                 }
                             }
                         }
-                        holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers()));
+                        holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers(), server));
                         for (UserJoinStatus statuses : process.getUsers()) {
                             if (statuses.getUserId().equals(userId)) {
                                 holder.btnJoin.setVisibility(View.GONE);
@@ -231,10 +232,35 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         return queues.size();
     }
 
-    private void setAllDelayed(Users users, String queueId) {
+    private int getCorrespondingServer(List<UserJoinStatus> userJoinStatuses, int serverNb){
+        for(UserJoinStatus u : userJoinStatuses){
+            if(u.getUserId().equals(userId)){
+                return u.getServer();
+            }
+        }
+
+        int[] servers = new int[serverNb];
+        for(UserJoinStatus userJoining: userJoinStatuses){
+            int server = userJoining.getServer();
+            if(server > 0){
+                servers[server - 1]++;
+            }
+        }
+        int minimumServer = servers[0];
+        int serverToReturn = 1;
+        for(int i = 0; i< servers.length; i++){
+            if(servers[i] < minimumServer){
+                minimumServer = servers[i];
+                serverToReturn = i + 1;
+            }
+        }
+        return serverToReturn;
+    }
+
+    private void setAllDelayed(Users users, String queueId, int server) {
         List<UserJoinStatus> usersJoin = users.getUsers();
         for(UserJoinStatus u: usersJoin){
-            if(!u.isFinished()){
+            if(!u.isFinished() && u.getServer() == server){
                 u.setDelayed(true);
             }
         }
@@ -354,9 +380,9 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         return "";
     }
 
-    private boolean isDelayed(List<UserJoinStatus> userJoinStatuses) {
+    private boolean isDelayed(List<UserJoinStatus> userJoinStatuses, int server) {
         for(UserJoinStatus cur : userJoinStatuses){
-            if(cur.isDelayed() && !cur.isFinished()){
+            if(cur.isDelayed() && !cur.isFinished() && cur.getServer() == server){
                 return true;
             }
         }
@@ -380,22 +406,22 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         return remainingMinutes;
     }
 
-    private int getWaitingPeople(List<UserJoinStatus> userJoinStatuses) {
+    private int getWaitingPeople(List<UserJoinStatus> userJoinStatuses, int server) {
         int sum = 0;
         for(UserJoinStatus u: userJoinStatuses){
-            if(!u.isFinished())
+            if(!u.isFinished() && u.getServer() == server)
                 sum++;
         }
         return sum;
     }
-    private double getWaitingTime(QueueAndServiceTime queueAndServiceTime, List<UserJoinStatus> userJoinStatuses){
+    private double getWaitingTime(QueueAndServiceTime queueAndServiceTime, List<UserJoinStatus> userJoinStatuses, int server){
         double time = 0.0;
         for(int i = 0; i < userJoinStatuses.size(); i++){
             UserJoinStatus currentUser = userJoinStatuses.get(i);
-            if(currentUser.getUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+            if(currentUser.getUserId().equals(userId)){
                 return time;
             }
-            if(!currentUser.isFinished()){
+            if(!currentUser.isFinished() && currentUser.getServer() == server){
                 time += queueAndServiceTime.getWaitingService();
             }
         }

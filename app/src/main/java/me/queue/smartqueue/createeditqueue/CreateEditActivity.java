@@ -133,7 +133,7 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("location", location);
                 fieldsData.put("field", queueModel.getField());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
-                fieldsData.put("finishedId", "");
+                fieldsData.put("joiningId", "");
                 new SetQueueAsync(fieldsData,queueModel.getQueueId(), success -> {
                     if (success) {
                         Toasty.success(this, "Success! Queue Added/Edited Successfully", Toasty.LENGTH_SHORT).show();
@@ -155,7 +155,7 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("location", location);
                 fieldsData.put("field", binding.spFields.getText().toString());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
-                fieldsData.put("finishedId", "");
+                fieldsData.put("joiningId", "");
                 new SetQueueAsync(fieldsData,UUIDStr, success -> {
                     if (success) {
                         Toasty.success(this, "Success! Queue Added/Edited Successfully", Toasty.LENGTH_SHORT).show();

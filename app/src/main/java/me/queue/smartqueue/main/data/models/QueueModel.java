@@ -31,13 +31,13 @@ public class QueueModel implements Serializable {
     private String field;
     @PropertyName("counter")
     private String counter;
-    @PropertyName("finishedId")
-    private String finishedId;
+    @PropertyName("joiningId")
+    private String joiningId;
 
     public boolean isAdmin = false;
 
 
-    public QueueModel(String queueName, String queueId, String isFinished, String createdAt, String endedAt, String ownerId, String location, String maxSize, String mue, String lambda, String field, String counter, String finishedId) {
+    public QueueModel(String queueName, String queueId, String isFinished, String createdAt, String endedAt, String ownerId, String location, String maxSize, String mue, String lambda, String field, String counter, String joiningId) {
         this.queueName = queueName;
         this.queueId = queueId;
         this.isFinished = isFinished;
@@ -50,7 +50,7 @@ public class QueueModel implements Serializable {
         this.lambda = lambda;
         this.field = field;
         this.counter = counter;
-        this.finishedId = finishedId;
+        this.joiningId = joiningId;
     }
 
     public String getCounter() {
@@ -113,12 +113,12 @@ public class QueueModel implements Serializable {
         this.isFinished = isFinished;
     }
 
-    public String getFinishedId() {
-        return finishedId;
+    public String getJoiningId() {
+        return joiningId;
     }
 
-    public void setFinishedId(String finishedId) {
-        this.finishedId = finishedId;
+    public void setJoiningId(String joiningId) {
+        this.joiningId = joiningId;
     }
 
     public void setOwnerId(String ownerId) {

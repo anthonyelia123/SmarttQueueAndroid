@@ -70,13 +70,15 @@ public class QueuesFragment extends Fragment {
                 if(queue != null){
                     new GetJoinAsync(queue.getQueueId(), process -> {
                         ArrayList<UserJoinStatus> join;
+                        int server = getCorrespondingServer(process, Integer.parseInt(queue.getCounter()));
                         if (process != null) {
                             join = new ArrayList<>(process.getUsers());
                             join.add(new UserJoinStatus(
                                     LocalDateTime.now().toString(),
                                     false,
                                     userId,
-                                    false
+                                    false,
+                                    server
                             ));
                             HashMap<String, Object> map = new HashMap<>();
                             map.put("queueOwner", queue.getOwnerId());
@@ -92,7 +94,8 @@ public class QueuesFragment extends Fragment {
                                     LocalDateTime.now().toString(),
                                     false,
                                     userId,
-                                    false
+                                    false,
+                                    server
                             ));
                             HashMap<String, Object> map = new HashMap<>();
                             map.put("queueOwner", queue.getOwnerId());
@@ -117,6 +120,28 @@ public class QueuesFragment extends Fragment {
         });
     }
 
+    private int getCorrespondingServer(Users joinModel, int serverNb){
+        if(joinModel == null){
+            return 1;
+        }
+        int[] servers = new int[serverNb];
+        for(UserJoinStatus userJoining: joinModel.getUsers()){
+            int server = userJoining.getServer();
+            if(server > 0){
+                servers[server - 1]++;
+            }
+        }
+        int minimumServer = servers[0];
+        int serverToReturn = 1;
+        for(int i = 0; i< servers.length; i++){
+            if(servers[i] < minimumServer){
+                minimumServer = servers[i];
+                serverToReturn = i + 1;
+            }
+        }
+        return serverToReturn;
+    }
+
     private ArrayList<QueueModel> filterList(ArrayList<QueueModel> all) {
         ArrayList<QueueModel> filteredQueues = new ArrayList<>();
         ArrayList<QueueModel> priorityQueues = new ArrayList<>();
@@ -125,7 +150,7 @@ public class QueuesFragment extends Fragment {
             if (queue.getOwnerId().equals(userId)) {
                 queue.isAdmin = true;
             }
-            if(queue.getFinishedId().contains(userId)){
+            if(queue.getJoiningId().contains(userId)){
                 priorityQueues.add(queue);
             } else {
                 remainingQueues.add(queue);

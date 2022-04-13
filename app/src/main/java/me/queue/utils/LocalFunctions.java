@@ -49,7 +49,7 @@ public class LocalFunctions {
         Log.d("WS", String.valueOf(Ws * 60));
         Log.d("WQ", String.valueOf(Wq * 60));
 
-        QueueAndServiceTime queueAndServiceTime = new QueueAndServiceTime(5.0, Wq *60);
+        QueueAndServiceTime queueAndServiceTime = new QueueAndServiceTime((Ws * 60) -(Wq * 60), Wq *60);
         return queueAndServiceTime;
     }
 
