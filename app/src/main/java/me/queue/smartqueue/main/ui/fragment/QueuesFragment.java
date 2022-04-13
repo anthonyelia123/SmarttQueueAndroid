@@ -20,6 +20,7 @@ import java.util.HashMap;
 import es.dmoral.toasty.Toasty;
 import me.queue.smartqueue.common.async.GetAllQueuesAsync;
 import me.queue.smartqueue.common.async.GetJoinAsync;
+import me.queue.smartqueue.common.async.GetSpeceficUser;
 import me.queue.smartqueue.common.async.SetJoinAsync;
 import me.queue.smartqueue.common.models.Users;
 import me.queue.smartqueue.common.models.UserJoinStatus;
@@ -30,6 +31,8 @@ import me.queue.smartqueue.main.ui.adapters.TicketAdapter;
 public class QueuesFragment extends Fragment {
     private FragmentQueuesBinding binding;
     private String userId;
+    private String firstName;
+    private String lastName;
 
     public QueuesFragment() {
         // Required empty public constructor
@@ -48,20 +51,27 @@ public class QueuesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        binding.srRefresh.setRefreshing(true);
-        setupAdapter();
-        binding.srRefresh.setOnRefreshListener(() -> {
+        new GetSpeceficUser(userId, call ->{
+            firstName = call.getFirstname();
+            lastName = call.getLastname();
+
             binding.srRefresh.setRefreshing(true);
             setupAdapter();
-        });
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Do something after 5s = 5000ms
+            binding.srRefresh.setOnRefreshListener(() -> {
+                binding.srRefresh.setRefreshing(true);
                 setupAdapter();
-            }
-        }, 30000);
+            });
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Do something after 5s = 5000ms
+                    setupAdapter();
+                }
+            }, 30000);
+        });
+
+
     }
 
     private void setupAdapter() {
@@ -78,7 +88,9 @@ public class QueuesFragment extends Fragment {
                                     false,
                                     userId,
                                     false,
-                                    server
+                                    server,
+                                    firstName,
+                                    lastName
                             ));
                             HashMap<String, Object> map = new HashMap<>();
                             map.put("queueOwner", queue.getOwnerId());
@@ -95,7 +107,9 @@ public class QueuesFragment extends Fragment {
                                     false,
                                     userId,
                                     false,
-                                    server
+                                    server,
+                                    firstName,
+                                    lastName
                             ));
                             HashMap<String, Object> map = new HashMap<>();
                             map.put("queueOwner", queue.getOwnerId());

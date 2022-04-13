@@ -14,18 +14,19 @@ public class GetSpeceficUser {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         assert user != null;
         DocumentReference docRef = db.collection("users").document(userId);
-        docRef.addSnapshotListener((value, error) -> {
-            assert value != null;
-            UserModel model = new UserModel(
-                    value.getString("firstname"),
-                    value.getString("lastname"),
-                    value.getString("email"),
-                    value.getString("password"),
-                    value.getString("age"),
-                    value.getString("mobile"),
-                    value.getString("type")
-            );
-            callback.getUser(model);
+        docRef.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                UserModel model = new UserModel(
+                        task.getResult().getString("firstname"),
+                        task.getResult().getString("lastname"),
+                        task.getResult().getString("email"),
+                        task.getResult().getString("password"),
+                        task.getResult().getString("age"),
+                        task.getResult().getString("mobile"),
+                        task.getResult().getString("type")
+                );
+                callback.getUser(model);
+            }
         });
     }
 
