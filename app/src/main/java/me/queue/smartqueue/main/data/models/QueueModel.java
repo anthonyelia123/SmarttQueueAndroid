@@ -20,7 +20,7 @@ public class QueueModel implements Serializable {
     @PropertyName("ownerId")
     private String ownerId;
     @PropertyName("location")
-    private String location;
+    private LatLongModel location;
     @PropertyName("maxSize")
     private String maxSize;
     @PropertyName("mue")
@@ -38,6 +38,7 @@ public class QueueModel implements Serializable {
 
 
     public QueueModel(String queueName, String queueId, String isFinished, String createdAt, String endedAt, String ownerId, String location, String maxSize, String mue, String lambda, String field, String counter, String finishedId) {
+    public QueueModel(String queueName, String queueId, String isFinished, String createdAt, String endedAt, String ownerId, LatLongModel location, String maxSize, String mue, String lambda, String field, String counter, String joiningId) {
         this.queueName = queueName;
         this.queueId = queueId;
         this.isFinished = isFinished;
@@ -125,11 +126,11 @@ public class QueueModel implements Serializable {
         this.ownerId = ownerId;
     }
 
-    public String getLocation() {
+    public LatLongModel getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(LatLongModel location) {
         this.location = location;
     }
 

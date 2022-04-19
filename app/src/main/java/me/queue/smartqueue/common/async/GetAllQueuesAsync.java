@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import me.queue.smartqueue.main.data.models.LatLongModel;
 import me.queue.smartqueue.main.data.models.QueueModel;
 
 public class GetAllQueuesAsync {
@@ -27,7 +28,7 @@ public class GetAllQueuesAsync {
                             document.getString("createdAt"),
                             document.getString("endedAt"),
                             document.getString("ownerId"),
-                            document.getString("location"),
+                            new LatLongModel(document.getString("latitude"),document.getString("longitude")),
                             document.getString("maxSize"),
                             document.getString("mue"),
                             document.getString("lambda"),

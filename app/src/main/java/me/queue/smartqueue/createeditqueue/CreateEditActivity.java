@@ -1,14 +1,19 @@
 package me.queue.smartqueue.createeditqueue;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.time.LocalDateTime;
@@ -22,6 +27,7 @@ import java.util.UUID;
 import es.dmoral.toasty.Toasty;
 import me.queue.smartqueue.common.async.GetFieldsAsync;
 import me.queue.smartqueue.common.async.SetQueueAsync;
+import me.queue.smartqueue.common.async.UpdateQueueAsync;
 import me.queue.smartqueue.databinding.ActivityCreateEditBinding;
 import me.queue.smartqueue.main.data.models.QueueModel;
 import me.queue.utils.LocalFunctions;
@@ -33,6 +39,7 @@ public class CreateEditActivity extends AppCompatActivity {
     private boolean isFinished;
     private String location;
     private QueueModel queueModel;
+    private LatLng latLng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +54,11 @@ public class CreateEditActivity extends AppCompatActivity {
         if (queueModel != null) {
             binding.etQueueName.setText(queueModel.getQueueName());
             binding.etMaxQty.setText(queueModel.getMaxSize());
-            binding.tvLocation.setText(queueModel.getLocation());
+            binding.tvLocation.setText(queueModel.getLocation().toString());
             binding.spFields.setText(queueModel.getField());
             binding.etlambda.setText(queueModel.getLambda());
             binding.etMue.setText(queueModel.getMue());
-            binding.etNbCounter.setText(queueModel.getLocation());
+            binding.etNbCounter.setText(queueModel.getCounter());
             binding.etMaxQty.setText(queueModel.getMaxSize());
             binding.etNbCounter.setText(queueModel.getCounter());
         } else {
@@ -72,14 +79,31 @@ public class CreateEditActivity extends AppCompatActivity {
         });
         View.OnClickListener listener = v -> {
             //start activity for result
-            startActivity(new Intent(this, MapsActivity.class));
+            Intent intent=new Intent(this, MapsActivity.class);
+            startActivityForResult(intent, 2);// Activity is started with requestCode 2
         };
+
 
         binding.textField6.setOnClickListener(listener);
         binding.tvLocation.setOnClickListener(listener);
-        binding.tvLocation.setOnClickListener(listener);
+        binding.tvLocation.setFocusable(false);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        // check if the request code is same as what is passed  here it is 2
+        if(requestCode==2)
+        {
+            latLng = new LatLng(
+                    Double.parseDouble(data.getStringExtra("latitude")),
+                    Double.parseDouble(data.getStringExtra("longitude"))
+            );
+            Log.e("latlong",latLng.toString());
+            binding.tvLocation.setText("my place");
+        }
+    }
     private void checkAllFields() {
         boolean status1 = true;
         boolean status2 = true;
@@ -130,7 +154,7 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("maxSize", localFunctions.getTrimmedText(binding.etMaxQty));
                 fieldsData.put("mue", localFunctions.getTrimmedText(binding.etMue));
                 fieldsData.put("lambda", localFunctions.getTrimmedText(binding.etlambda));
-                fieldsData.put("location", location);
+                fieldsData.put("location", latLng);
                 fieldsData.put("field", queueModel.getField());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
                 fieldsData.put("finishedId", "");
@@ -152,7 +176,7 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("maxSize", localFunctions.getTrimmedText(binding.etMaxQty));
                 fieldsData.put("mue", localFunctions.getTrimmedText(binding.etMue));
                 fieldsData.put("lambda", localFunctions.getTrimmedText(binding.etlambda));
-                fieldsData.put("location", location);
+                fieldsData.put("location", latLng.toString());
                 fieldsData.put("field", binding.spFields.getText().toString());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
                 fieldsData.put("finishedId", "");
