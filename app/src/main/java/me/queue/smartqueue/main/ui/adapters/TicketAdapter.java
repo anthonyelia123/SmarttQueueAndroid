@@ -1,6 +1,7 @@
 package me.queue.smartqueue.main.ui.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.opengl.Visibility;
@@ -185,25 +186,44 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                     });
                     holder.btnJoin.setOnClickListener(V -> {
 
-                            HashMap<String, Object> hash2 = new HashMap<>();
-                            hash2.put("counter", current.getCounter());
-                            hash2.put("createdAt", current.getCreatedAt());
-                            hash2.put("endedAt", current.getEndedAt());
-                            hash2.put("field", current.getField());
-                            hash2.put("isFinished", current.getIsFinished());
-                            hash2.put("location", current.getLocation());
-                            hash2.put("maxSize", current.getMaxSize());
-                            hash2.put("mue", current.getMue());
-                            hash2.put("ownerId", current.getOwnerId());
-                            hash2.put("queueId", current.getQueueId());
-                            hash2.put("queueName", current.getQueueName());
-                            hash2.put("lambda", current.getLambda());
-                            String joinedId = current.getJoiningId();
-                            joinedId += userId + ",";
-                            hash2.put("joiningId", joinedId);
-                            new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
-                                listener.onJoin(current);
-                            });
+                        int usersNumber = 0;
+                        int maxSize = -1;
+
+                        SharedPreferences sharedPreferences1 = context.getSharedPreferences("SHARED", Context.MODE_PRIVATE);
+
+                            if(process != null){
+                                usersNumber = process.getUsers().size();
+                                maxSize = Integer.parseInt(current.getMaxSize());
+
+                            }
+
+
+                            if(usersNumber == maxSize){
+                                Toast.makeText(context, "Queue is Full, you can't join", Toast.LENGTH_LONG).show();
+                            } else {
+
+                                HashMap<String, Object> hash2 = new HashMap<>();
+                                hash2.put("counter", current.getCounter());
+                                hash2.put("createdAt", current.getCreatedAt());
+                                hash2.put("endedAt", current.getEndedAt());
+                                hash2.put("field", current.getField());
+                                hash2.put("isFinished", current.getIsFinished());
+                                hash2.put("location", current.getLocation());
+                                hash2.put("maxSize", current.getMaxSize());
+                                hash2.put("mue", current.getMue());
+                                hash2.put("ownerId", current.getOwnerId());
+                                hash2.put("queueId", current.getQueueId());
+                                hash2.put("queueName", current.getQueueName());
+                                hash2.put("lambda", current.getLambda());
+                                String joinedId = current.getJoiningId();
+                                joinedId += userId + ",";
+                                hash2.put("joiningId", joinedId);
+                                new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
+                                    listener.onJoin(current);
+                                });
+                            }
+
+
                     });
 
                     if(process != null){
