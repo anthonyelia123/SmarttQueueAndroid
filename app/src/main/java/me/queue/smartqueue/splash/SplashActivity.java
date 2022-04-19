@@ -23,7 +23,7 @@ public class SplashActivity extends AppCompatActivity {
    @Override
    protected void onPostResume() {
     super.onPostResume();
-      firebaseAuth.signOut();
+      //firebaseAuth.signOut();
   }
 
     @Override

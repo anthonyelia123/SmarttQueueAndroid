@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 import me.queue.smartqueue.common.async.GetAllQueuesAsync;
@@ -21,6 +23,7 @@ import me.queue.smartqueue.createeditqueue.CreateEditActivity;
 import me.queue.smartqueue.createeditqueue.QueuesAdapter;
 import me.queue.smartqueue.databinding.FragmentAddQueueBinding;
 import me.queue.smartqueue.main.adapter.AddQueueAdapter;
+import me.queue.smartqueue.main.data.models.QueueModel;
 
 public class AddQueueFragment extends Fragment {
 
@@ -56,12 +59,21 @@ public class AddQueueFragment extends Fragment {
         new GetAllQueuesAsync(queueModels -> {
             binding.srlswipe.setRefreshing(false);
             if (queueModels.size()>0){
-                binding.animationView.setVisibility(View.GONE);
-                binding.rvMyQueues.setVisibility(View.VISIBLE);
-                AddQueueAdapter adapter = new AddQueueAdapter(queueModels,requireActivity());
-                binding.rvMyQueues.setHasFixedSize(true);
-                binding.rvMyQueues.setLayoutManager(new LinearLayoutManager(requireActivity()));
-                binding.rvMyQueues.setAdapter(adapter);
+                ArrayList<QueueModel> r = new ArrayList<>();
+                for(QueueModel m : queueModels){
+                    if(m.getOwnerId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                        r.add(m);
+                    }
+                }
+                if(r.size() > 0){
+                    binding.animationView.setVisibility(View.GONE);
+                    binding.rvMyQueues.setVisibility(View.VISIBLE);
+                    AddQueueAdapter adapter = new AddQueueAdapter(r,requireActivity());
+                    binding.rvMyQueues.setHasFixedSize(true);
+                    binding.rvMyQueues.setLayoutManager(new LinearLayoutManager(requireActivity()));
+                    binding.rvMyQueues.setAdapter(adapter);
+                }
+
             }else {
                 //TODO: show empty list
                 binding.animationView.setVisibility(View.VISIBLE);

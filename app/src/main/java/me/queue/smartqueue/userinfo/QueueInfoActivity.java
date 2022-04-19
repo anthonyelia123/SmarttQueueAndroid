@@ -6,8 +6,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+
+import org.apache.xmlbeans.impl.xb.xsdschema.Attribute;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.Inflater;
 
 import me.queue.smartqueue.R;
@@ -26,6 +31,7 @@ import me.queue.smartqueue.main.data.models.QueueModel;
 public class QueueInfoActivity extends AppCompatActivity {
     private ActivityQueueInfoBinding binding;
     private QueueModel queueModel;
+    private List<UserJoinStatus> allUsersModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,12 +41,43 @@ public class QueueInfoActivity extends AppCompatActivity {
         binding.lottieAnimationView.setVisibility(View.VISIBLE);
         binding.rvUsers.setVisibility(View.GONE);
         queueModel = (QueueModel) getIntent().getSerializableExtra("queue");
+
+
+
+
+
         if (queueModel != null) {
             new GetJoinAsync(queueModel.getQueueId(), process -> {
                 if (process !=null){
+                    allUsersModel = process.getUsers();
                     binding.lottieAnimationView.setVisibility(View.GONE);
                     binding.rvUsers.setVisibility(View.VISIBLE);
-                    getUsersFiltered(process);
+
+                    final int[] serverSelected = {1};
+                    binding.spinnerServer.setVisibility(View.VISIBLE);
+                    int nbOfServers = Integer.parseInt(queueModel.getCounter());
+                    ArrayList<String> servers = new ArrayList<>();
+                    for(int i = 0; i < nbOfServers; i++){
+                        servers.add("server "+ ( i + 1));
+                    }
+
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, servers);
+                    arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    binding.spinnerServer.setAdapter(arrayAdapter);
+                    binding.spinnerServer.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            serverSelected[0] = position + 1;
+                            new GetJoinAsync(queueModel.getQueueId(), process2 -> {
+                                List<UserJoinStatus> filteredUser = getUserDependingOnServer(process.getUsers(), serverSelected[0]);
+                                initRecycler(filteredUser);
+                            });
+
+                        }
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                        }
+                    });
                 }
             });
 
@@ -52,18 +89,32 @@ public class QueueInfoActivity extends AppCompatActivity {
 
     }
 
-    private void getUsersFiltered(Users users){
 
-        new GetUserDataAsync(call->{
-            ArrayList<UserIdModel> filtered = new ArrayList<>();
-            for (int i=0;i<users.getUsers().size();i++){
-                filtered.add(new UserIdModel(users.getUsers().get(i).getUserId(),
-                        call.get(i).getFirstname()+" "+call.get(i).getLastname()));
+    private List<UserJoinStatus> getUserDependingOnServer(List<UserJoinStatus> all, int server){
+        List<UserJoinStatus> result = new ArrayList<>();
+        for(UserJoinStatus u: all){
+            if(u.getServer() == server){
+                result.add(u);
             }
-            QueueInfoAdapter adapter = new QueueInfoAdapter(filtered,this);
+        }
+        return result;
+    }
+
+    private void initRecycler(List<UserJoinStatus> users){
+        if(users != null){
+            QueueInfoAdapter adapter = new QueueInfoAdapter((ArrayList<UserJoinStatus>) users,(ArrayList<UserJoinStatus>)allUsersModel, this, queueModel, new QueueInfoAdapter.Refresh() {
+                @Override
+                public void onRefresh() {
+                    new GetJoinAsync(queueModel.getQueueId(), process -> {
+                        if (process !=null){
+                            initRecycler(process.getUsers());
+                        }
+                    });
+                }
+            });
             binding.rvUsers.setHasFixedSize(true);
             binding.rvUsers.setLayoutManager(new LinearLayoutManager(this));
             binding.rvUsers.setAdapter(adapter);
-        });
+        }
     }
 }

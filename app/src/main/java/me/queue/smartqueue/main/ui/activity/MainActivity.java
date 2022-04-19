@@ -1,7 +1,12 @@
 package me.queue.smartqueue.main.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,6 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import me.queue.smartqueue.R;
 import me.queue.smartqueue.common.async.GetCurrentUser;
 import me.queue.smartqueue.databinding.ActivityMainBinding;
+import me.queue.smartqueue.login.LoginActivity;
 import me.queue.smartqueue.main.ui.fragment.AddQueueFragment;
 import me.queue.smartqueue.main.ui.fragment.QueuesFragment;
 
@@ -62,6 +68,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.logout)
+        {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
 
     }
 
