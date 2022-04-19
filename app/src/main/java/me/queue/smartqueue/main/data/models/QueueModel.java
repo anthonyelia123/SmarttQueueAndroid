@@ -37,7 +37,6 @@ public class QueueModel implements Serializable {
     public boolean isAdmin = false;
 
 
-    public QueueModel(String queueName, String queueId, String isFinished, String createdAt, String endedAt, String ownerId, String location, String maxSize, String mue, String lambda, String field, String counter, String finishedId) {
     public QueueModel(String queueName, String queueId, String isFinished, String createdAt, String endedAt, String ownerId, LatLongModel location, String maxSize, String mue, String lambda, String field, String counter, String joiningId) {
         this.queueName = queueName;
         this.queueId = queueId;

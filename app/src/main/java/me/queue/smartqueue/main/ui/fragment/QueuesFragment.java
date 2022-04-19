@@ -21,7 +21,6 @@ import es.dmoral.toasty.Toasty;
 import me.queue.smartqueue.common.async.GetAllQueuesAsync;
 import me.queue.smartqueue.common.async.GetJoinAsync;
 import me.queue.smartqueue.common.async.SetJoinAsync;
-import me.queue.smartqueue.common.models.Users;
 import me.queue.smartqueue.common.models.UserJoinStatus;
 import me.queue.smartqueue.databinding.FragmentQueuesBinding;
 import me.queue.smartqueue.main.data.models.QueueModel;
@@ -67,7 +66,7 @@ public class QueuesFragment extends Fragment {
     private void setupAdapter() {
         new GetAllQueuesAsync(queueModels -> {
             TicketAdapter adapter = new TicketAdapter(filterList(queueModels), requireActivity(), queue -> {
-                if(queue != null){
+                if (queue != null) {
                     new GetJoinAsync(queue.getQueueId(), process -> {
                         ArrayList<UserJoinStatus> join;
                         if (process != null) {
@@ -83,7 +82,7 @@ public class QueuesFragment extends Fragment {
                             map.put("users", join);
                             map.put("joiningTime", process.getJoiningTime());
                             new SetJoinAsync(queue.getQueueId(), map, success -> {
-                                Toasty.success(requireContext(),"Joined Successfully", Toasty.LENGTH_LONG).show();
+                                Toasty.success(requireContext(), "Joined Successfully", Toasty.LENGTH_LONG).show();
                                 setupAdapter();
                             });
                         } else {
@@ -125,16 +124,20 @@ public class QueuesFragment extends Fragment {
             if (queue.getOwnerId().equals(userId)) {
                 queue.isAdmin = true;
             }
-            if(queue.getFinishedId().contains(userId)){
-                priorityQueues.add(queue);
-            } else {
+            try {
+                if (queue.getFinishedId().contains(userId)) {
+                    priorityQueues.add(queue);
+                } else {
+                    remainingQueues.add(queue);
+                }
+            } catch (Exception e) {
                 remainingQueues.add(queue);
             }
 
         }
-        if(priorityQueues.size() > 0)
+        if (priorityQueues.size() > 0)
             filteredQueues.addAll(priorityQueues);
-        if(remainingQueues.size() > 0)
+        if (remainingQueues.size() > 0)
             filteredQueues.addAll(remainingQueues);
         return filteredQueues;
     }
