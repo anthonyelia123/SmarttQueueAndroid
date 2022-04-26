@@ -3,7 +3,6 @@ package me.queue.smartqueue.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -11,16 +10,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 
 import me.queue.smartqueue.common.async.CheckBannedUsersAsync;
 import me.queue.smartqueue.databinding.ActivityLoginBinding;
 import me.queue.smartqueue.main.ui.activity.MainActivity;
 import me.queue.smartqueue.signup.SignupActivity;
+import me.queue.smartqueue.splash.SplashActivity;
 import me.queue.utils.LocalFunctions;
 
 public class LoginActivity extends AppCompatActivity {
@@ -69,13 +67,13 @@ public class LoginActivity extends AppCompatActivity {
 
         // check if email is not empty
         if (TextUtils.isEmpty(email)) {
-            localFunctions.errorToast(this,"Please enter email");
+            localFunctions.errorToast(this, "Please enter email");
             binding.progressbar.setVisibility(View.GONE);
             return;
         }
         //check if password is not empty
         if (TextUtils.isEmpty(password)) {
-            localFunctions.errorToast(this,"Please enter password");
+            localFunctions.errorToast(this, "Please enter password");
             binding.progressbar.setVisibility(View.GONE);
             return;
         }
@@ -88,11 +86,14 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             //if successful => move to main activity
-                            new CheckBannedUsersAsync(firebaseAuth.getCurrentUser().getUid(),isBanned->{
-                                if (isBanned){
-                                    LocalFunctions.errorToast(LoginActivity.this,"User is banned");
+                            new CheckBannedUsersAsync(firebaseAuth.getCurrentUser().getUid(), isBanned -> {
+                                if (isBanned) {
+                                    LocalFunctions.errorToast(LoginActivity.this, "User is banned");
                                     FirebaseAuth.getInstance().signOut();
-                                }else {
+                                    Intent i = new Intent(LoginActivity.this, LoginActivity.class);
+                                    startActivity(i);
+                                    finish();
+                                } else {
                                     FirebaseUser user = firebaseAuth.getCurrentUser();
                                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -106,6 +107,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
                             // updateUI(null);
+                        } else {
+                            LocalFunctions.errorToast(LoginActivity.this, "Wrong credentials");
+                            binding.progressbar.setVisibility(View.GONE);
                         }
 
 

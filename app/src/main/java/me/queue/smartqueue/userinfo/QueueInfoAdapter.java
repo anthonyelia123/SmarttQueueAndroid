@@ -22,6 +22,7 @@ import me.queue.smartqueue.common.models.UserIdModel;
 import me.queue.smartqueue.common.models.UserModel;
 import me.queue.smartqueue.login.LoginActivity;
 import me.queue.smartqueue.main.data.models.QueueModel;
+import me.queue.smartqueue.splash.SplashActivity;
 import me.queue.utils.LocalFunctions;
 
 public class QueueInfoAdapter extends RecyclerView.Adapter<QueueInfoAdapter.QueueInfoViewHolder> {

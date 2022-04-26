@@ -1,5 +1,7 @@
 package me.queue.smartqueue.main.ui.adapters;
 
+import static me.queue.utils.GlobalVars.isFirstTime;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -28,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.karn.notify.Notify;
 import me.queue.smartqueue.Model.QueueAndServiceTime;
 import me.queue.smartqueue.R;
 import me.queue.smartqueue.common.async.GetJoinAsync;
@@ -67,15 +70,15 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
             holder.ivCode.setImageBitmap(BitmapUtils.CreateImage(current.getOwnerId(), "Barcode"));
 
             new GetJoinAsync(current.getQueueId(), process -> {
-                if(current.isAdmin){
-                    if(process != null){
+                if (current.isAdmin) {
+                    if (process != null) {
                         holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers()));
                     }
                     holder.btnNext.setVisibility(View.VISIBLE);
                     holder.btnNext.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if(process != null && process.getUsers() != null && getWaitingPeople(process.getUsers()) > 0){
+                            if (process != null && process.getUsers() != null && getWaitingPeople(process.getUsers()) > 0) {
                                 HashMap<String, Object> hash = new HashMap<>();
                                 String queueOwner = process.getQueueOwner();
                                 List<UserJoinStatus> userJoinStatus = process.getUsers();
@@ -116,7 +119,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                                         }
                                     }
                                     hash2.put("finishedId", remainingIds);
-                                    new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
+                                    new UpdateQueueAsync(current.getQueueId(), hash2, result2 -> {
                                         resetQueue(process, current.getQueueId(), current);
                                     });
                                 });
@@ -124,6 +127,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                         }
                     });
                 } else {
+
                     holder.btnJoin.setVisibility(View.VISIBLE);
                     holder.btnQuit.setOnClickListener(V -> {
                         HashMap<String, Object> hash2 = new HashMap<>();
@@ -140,6 +144,9 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                         hash2.put("queueName", current.getQueueName());
                         hash2.put("lambda", current.getLambda());
                         String joinedId = current.getFinishedId();
+                        if (joinedId == null){
+                            joinedId = "";
+                        }
                         String[] joinedIdsArray = joinedId.split(",");
                         StringBuilder remainingIds = new StringBuilder();
                         for (String s : joinedIdsArray) {
@@ -153,7 +160,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                         });
                     });
                     holder.btnJoin.setOnClickListener(V -> {
-
+                        if (process.getUsers().size() <= Integer.parseInt(current.getMaxSize())) {
                             HashMap<String, Object> hash2 = new HashMap<>();
                             hash2.put("counter", current.getCounter());
                             hash2.put("createdAt", current.getCreatedAt());
@@ -170,17 +177,20 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                             String joinedId = current.getFinishedId();
                             joinedId += userId + ",";
                             hash2.put("finishedId", joinedId);
-                            new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
+                            new UpdateQueueAsync(current.getQueueId(), hash2, result2 -> {
                                 listener.onJoin(current);
                             });
+                        } else {
+                            LocalFunctions.errorToast(context, "Cannot join");
+                        }
                     });
 
-                    if(process != null){
+                    if (process != null) {
                         QueueAndServiceTime queueAndServiceTime = LocalFunctions.getQueueTime(current);
                         double waitingTime = 0.0;
                         long remainingTime = 0;
 
-                        if(isDelayed(process.getUsers())){
+                        if (isDelayed(process.getUsers())) {
                             holder.tvWaiting.setText("Waiting Time: Delayed");
                             holder.tvWaiting.setTextColor(Color.RED);
                         } else {
@@ -199,6 +209,17 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                                 }
                             }
                         }
+                        //TODO: if current time -> show notification
+                        //process.getUsers().size()
+                        if (isFirstTime && (waitingTime <= 0)) {
+                            Notify.Companion.with(context).content(test -> {
+                                test.setText("Its Your Time");
+                                test.setTitle("SmartQueue");
+                                return null;
+                            }).show();
+                            LocalFunctions.warningToast(context, "Its Your Time");
+                            isFirstTime = false;
+                        }
                         holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers()));
                         for (UserJoinStatus statuses : process.getUsers()) {
                             if (statuses.getUserId().equals(userId)) {
@@ -214,11 +235,12 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                 holder.tvEstimation.setText(today.getDayOfMonth() + "/" + today.getMonth() + "/" + today.getYear());
                 holder.tvMax.setText("Max capacity: " + current.getMaxSize());
                 holder.txt_code.setText(current.getQueueName());
+                holder.edtFieldName.setText(current.getField());
                 holder.ticket.setOnClickListener(V -> {
-                    Uri uri =Uri.parse("http://maps.google.com/maps?saddr=" +
+                    Uri uri = Uri.parse("http://maps.google.com/maps?saddr=" +
                             current.getLocation().getLongitude() +
                             "&daddr=" + current.getLocation().getLongitude());
-                    Log.e("uri",uri.toString());
+                    Log.e("uri", uri.toString());
                     Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
                     context.startActivity(intent);
                 });
@@ -237,8 +259,8 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
     private void setAllDelayed(Users users, String queueId) {
         List<UserJoinStatus> usersJoin = users.getUsers();
-        for(UserJoinStatus u: usersJoin){
-            if(!u.isFinished()){
+        for (UserJoinStatus u : usersJoin) {
+            if (!u.isFinished()) {
                 u.setDelayed(true);
             }
         }
@@ -359,8 +381,8 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
     }
 
     private boolean isDelayed(List<UserJoinStatus> userJoinStatuses) {
-        for(UserJoinStatus cur : userJoinStatuses){
-            if(cur.isDelayed() && !cur.isFinished()){
+        for (UserJoinStatus cur : userJoinStatuses) {
+            if (cur.isDelayed() && !cur.isFinished()) {
                 return true;
             }
         }
@@ -386,20 +408,21 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
     private int getWaitingPeople(List<UserJoinStatus> userJoinStatuses) {
         int sum = 0;
-        for(UserJoinStatus u: userJoinStatuses){
-            if(!u.isFinished())
+        for (UserJoinStatus u : userJoinStatuses) {
+            if (!u.isFinished())
                 sum++;
         }
         return sum;
     }
-    private double getWaitingTime(QueueAndServiceTime queueAndServiceTime, List<UserJoinStatus> userJoinStatuses){
+
+    private double getWaitingTime(QueueAndServiceTime queueAndServiceTime, List<UserJoinStatus> userJoinStatuses) {
         double time = 0.0;
         for (int i = 0; i < userJoinStatuses.size(); i++) {
             UserJoinStatus currentUser = userJoinStatuses.get(i);
-            if(currentUser.getUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+            if (currentUser.getUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                 return time;
             }
-            if(!currentUser.isFinished()){
+            if (!currentUser.isFinished()) {
                 time += queueAndServiceTime.getWaitingService();
             }
         }
@@ -409,7 +432,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
     public static class TicketViewHolder extends RecyclerView.ViewHolder {
         private ImageView ivCode;
         private MaterialButton btnJoin, btnNext, btnQuit;
-        private TextView tvEstimation, tvWaiting, tvMax, tvQueuing, txt_code;
+        private TextView tvEstimation, tvWaiting, tvMax, tvQueuing, txt_code, edtFieldName;
         private TicketView ticket;
 
         public TicketViewHolder(@NonNull View itemView) {
@@ -424,6 +447,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
             txt_code = itemView.findViewById(R.id.txt_code);
             btnQuit = itemView.findViewById(R.id.btnQuit);
             ticket = itemView.findViewById(R.id.ticket);
+            edtFieldName = itemView.findViewById(R.id.edtFieldName);
         }
     }
 

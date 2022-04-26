@@ -24,6 +24,9 @@ public class LocalFunctions {
     public static void successToast(Context context, String success){
         Toasty.error(context,success,Toasty.LENGTH_SHORT).show();
     }
+    public static void warningToast(Context context, String success){
+        Toasty.warning(context,success,Toasty.LENGTH_SHORT).show();
+    }
     public static QueueAndServiceTime getQueueTime(QueueModel queueModel){
         int s = Integer.parseInt(queueModel.getCounter());
         double lambda = Double.parseDouble(queueModel.getLambda());

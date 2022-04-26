@@ -1,16 +1,12 @@
 package me.queue.smartqueue.createeditqueue;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -18,16 +14,13 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import es.dmoral.toasty.Toasty;
 import me.queue.smartqueue.common.async.GetFieldsAsync;
 import me.queue.smartqueue.common.async.SetQueueAsync;
-import me.queue.smartqueue.common.async.UpdateQueueAsync;
 import me.queue.smartqueue.databinding.ActivityCreateEditBinding;
 import me.queue.smartqueue.main.data.models.QueueModel;
 import me.queue.utils.LocalFunctions;
@@ -79,7 +72,7 @@ public class CreateEditActivity extends AppCompatActivity {
         });
         View.OnClickListener listener = v -> {
             //start activity for result
-            Intent intent=new Intent(this, MapsActivity.class);
+            Intent intent = new Intent(this, MapsActivity.class);
             startActivityForResult(intent, 2);// Activity is started with requestCode 2
         };
 
@@ -90,20 +83,23 @@ public class CreateEditActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // check if the request code is same as what is passed  here it is 2
-        if(requestCode==2)
-        {
-            latLng = new LatLng(
-                    Double.parseDouble(data.getStringExtra("latitude")),
-                    Double.parseDouble(data.getStringExtra("longitude"))
-            );
-            Log.e("latlong",latLng.toString());
-            binding.tvLocation.setText("my place");
+        if (requestCode == 2) {
+            try {
+                latLng = new LatLng(
+                        Double.parseDouble(data.getStringExtra("latitude")),
+                        Double.parseDouble(data.getStringExtra("longitude"))
+                );
+                Log.e("latlong", latLng.toString());
+                binding.tvLocation.setText("my place");
+            } catch (Exception e) {
+                Log.e("error: ", e.getLocalizedMessage());
+            }
         }
     }
+
     private void checkAllFields() {
         boolean status1 = true;
         boolean status2 = true;
@@ -158,7 +154,7 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("field", queueModel.getField());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
                 fieldsData.put("finishedId", "");
-                new SetQueueAsync(fieldsData,queueModel.getQueueId(), success -> {
+                new SetQueueAsync(fieldsData, queueModel.getQueueId(), success -> {
                     if (success) {
                         Toasty.success(this, "Success! Queue Added/Edited Successfully", Toasty.LENGTH_SHORT).show();
                         finish();
@@ -180,7 +176,7 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("field", binding.spFields.getText().toString());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
                 fieldsData.put("finishedId", "");
-                new SetQueueAsync(fieldsData,UUIDStr, success -> {
+                new SetQueueAsync(fieldsData, UUIDStr, success -> {
                     if (success) {
                         Toasty.success(this, "Success! Queue Added/Edited Successfully", Toasty.LENGTH_SHORT).show();
                         finish();

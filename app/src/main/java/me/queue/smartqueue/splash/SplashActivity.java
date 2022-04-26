@@ -33,13 +33,8 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         firebaseAuth = FirebaseAuth.getInstance();
         final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Do something after 5s = 5000ms
-                createAuthStateListener();
-            }
-        }, 3000);
+        // Do something after 5s = 5000ms
+        handler.postDelayed(this::createAuthStateListener, 3000);
 
     }
 
@@ -52,15 +47,14 @@ public class SplashActivity extends AppCompatActivity {
 
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
             startActivity(intent);
-            finish();
         }
         else{
             Log.d("log", "entered method3");
 
             Intent mainIntent = new Intent(SplashActivity.this, IntroActivity.class);
             startActivity(mainIntent);
-            finish();
         }
+        finish();
 
     }
 }

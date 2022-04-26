@@ -23,16 +23,32 @@
                 android:id="@+id/txt_code"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
                 android:gravity="center"
                 android:lineSpacingMultiplier="1.2"
                 android:paddingTop="20dp"
                 android:paddingBottom="10dp"
                 android:text=""
-                android:textColor="@color/purple_700"
-                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/edtFieldName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.2"
+                android:paddingTop="20dp"
+                android:paddingBottom="10dp"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -157,8 +173,9 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Join"
-            android:visibility="gone"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"
             android:layout_width="match_parent"
@@ -168,8 +185,9 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Next"
-            android:visibility="gone"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnQuit"
             android:layout_width="match_parent"
@@ -179,8 +197,8 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Quit"
-            android:visibility="gone"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:visibility="gone" />
 
     </com.mreram.ticketview.TicketView>
 

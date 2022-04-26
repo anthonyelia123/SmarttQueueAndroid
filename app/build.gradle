@@ -85,4 +85,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.11.1'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.1'
 
+    //notification
+    implementation "io.karn:notify:1.4.0"
+
 }

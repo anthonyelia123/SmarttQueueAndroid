@@ -1,12 +1,9 @@
 package me.queue.smartqueue.common.async;
 
-import com.google.common.reflect.TypeToken;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.gson.Gson;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import me.queue.smartqueue.main.data.models.LatLongModel;
@@ -28,7 +25,7 @@ public class GetAllQueuesAsync {
                             document.getString("createdAt"),
                             document.getString("endedAt"),
                             document.getString("ownerId"),
-                            new LatLongModel(document.getString("latitude"),document.getString("longitude")),
+                            new LatLongModel(document.getString("latitude"), document.getString("longitude")),
                             document.getString("maxSize"),
                             document.getString("mue"),
                             document.getString("lambda"),

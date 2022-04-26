@@ -46,7 +46,8 @@ public class QueuesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         binding.srRefresh.setRefreshing(true);
         setupAdapter();
         binding.srRefresh.setOnRefreshListener(() -> {
