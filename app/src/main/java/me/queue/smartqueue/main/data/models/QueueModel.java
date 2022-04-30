@@ -3,8 +3,6 @@ package me.queue.smartqueue.main.data.models;
 import com.google.firebase.database.PropertyName;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class QueueModel implements Serializable {
     @PropertyName("queueName")

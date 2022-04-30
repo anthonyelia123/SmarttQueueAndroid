@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +13,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,12 +27,14 @@ import me.queue.smartqueue.common.async.GetJoinAsync;
 import me.queue.smartqueue.common.async.SetJoinAsync;
 import me.queue.smartqueue.common.models.UserJoinStatus;
 import me.queue.smartqueue.databinding.FragmentQueuesBinding;
+import me.queue.smartqueue.main.data.models.LatLongModel;
 import me.queue.smartqueue.main.data.models.QueueModel;
 import me.queue.smartqueue.main.ui.adapters.TicketAdapter;
 
 public class QueuesFragment extends Fragment {
     private FragmentQueuesBinding binding;
     private String userId;
+    private TicketAdapter adapter;
 
     public QueuesFragment() {
         // Required empty public constructor
@@ -55,18 +61,27 @@ public class QueuesFragment extends Fragment {
             setupAdapter();
         });
         final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        // Do something after 5s = 5000ms
+        handler.postDelayed(this::setupAdapter, 30000);
+
+        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void run() {
-                // Do something after 5s = 5000ms
-                setupAdapter();
+            public boolean onQueryTextSubmit(String query) {
+                return false;
             }
-        }, 30000);
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
     }
 
     private void setupAdapter() {
         new GetAllQueuesAsync(queueModels -> {
-            TicketAdapter adapter = new TicketAdapter(filterList(queueModels), requireActivity(), queue -> {
+             adapter = new TicketAdapter(filterList(queueModels), requireActivity(), queue -> {
                 if (queue != null) {
                     new GetJoinAsync(queue.getQueueId(), process -> {
                         ArrayList<UserJoinStatus> join;

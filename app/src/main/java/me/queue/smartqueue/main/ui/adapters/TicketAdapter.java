@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,16 +44,18 @@ import me.queue.smartqueue.main.data.models.QueueModel;
 import me.queue.utils.BitmapUtils;
 import me.queue.utils.LocalFunctions;
 
-public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketViewHolder> {
-    private final ArrayList<QueueModel> queues;
+public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketViewHolder> implements Filterable {
+    private final ArrayList<QueueModel> dataSet;
+    private ArrayList<QueueModel> FullList;
     private final Context context;
     private TicketListener listener;
     private String userId;
 
-    public TicketAdapter(ArrayList<QueueModel> queues, Context context, TicketListener listener) {
-        this.queues = queues;
+    public TicketAdapter(ArrayList<QueueModel> dataSet, Context context, TicketListener listener) {
+        this.dataSet = dataSet;
         this.context = context;
         this.listener = listener;
+        FullList = new ArrayList<>(dataSet);
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
@@ -66,7 +70,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
     @Override
     public void onBindViewHolder(@NonNull TicketViewHolder holder, int position) {
         try {
-            QueueModel current = queues.get(position);
+            QueueModel current = dataSet.get(position);
             holder.ivCode.setImageBitmap(BitmapUtils.CreateImage(current.getOwnerId(), "Barcode"));
 
             new GetJoinAsync(current.getQueueId(), process -> {
@@ -75,55 +79,52 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                         holder.tvQueuing.setText("Queuing People: " + getWaitingPeople(process.getUsers()));
                     }
                     holder.btnNext.setVisibility(View.VISIBLE);
-                    holder.btnNext.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (process != null && process.getUsers() != null && getWaitingPeople(process.getUsers()) > 0) {
-                                HashMap<String, Object> hash = new HashMap<>();
-                                String queueOwner = process.getQueueOwner();
-                                List<UserJoinStatus> userJoinStatus = process.getUsers();
-                                String uId = "";
-                                int count = 0;
-                                for (UserJoinStatus curr : userJoinStatus) {
-                                    if (!curr.isFinished() && count == 0) {
-                                        curr.setFinished(true);
-                                        uId = curr.getUserId();
-                                        count++;
-                                    }
-                                    curr.setDelayed(false);
-                                    curr.setJoinDate(LocalDateTime.now().toString());
+                    holder.btnNext.setOnClickListener(v -> {
+                        if (process != null && process.getUsers() != null && getWaitingPeople(process.getUsers()) > 0) {
+                            HashMap<String, Object> hash = new HashMap<>();
+                            String queueOwner = process.getQueueOwner();
+                            List<UserJoinStatus> userJoinStatus = process.getUsers();
+                            String uId = "";
+                            int count = 0;
+                            for (UserJoinStatus curr : userJoinStatus) {
+                                if (!curr.isFinished() && count == 0) {
+                                    curr.setFinished(true);
+                                    uId = curr.getUserId();
+                                    count++;
                                 }
-                                hash.put("queueOwner", queueOwner);
-                                hash.put("users", userJoinStatus);
-                                String finalUId = uId;
-                                new UpdateJoinAsync(current.getQueueId(), hash, result -> {
-                                    HashMap<String, Object> hash2 = new HashMap<>();
-                                    hash2.put("counter", current.getCounter());
-                                    hash2.put("createdAt", current.getCreatedAt());
-                                    hash2.put("endedAt", current.getEndedAt());
-                                    hash2.put("field", current.getField());
-                                    hash2.put("isFinished", current.getIsFinished());
-                                    hash2.put("location", current.getLocation());
-                                    hash2.put("maxSize", current.getMaxSize());
-                                    hash2.put("mue", current.getMue());
-                                    hash2.put("ownerId", current.getOwnerId());
-                                    hash2.put("queueId", current.getQueueId());
-                                    hash2.put("queueName", current.getQueueName());
-                                    hash2.put("lambda", current.getLambda());
-                                    String joinedId = current.getFinishedId();
-                                    String[] joinedIdsArray = joinedId.split(",");
-                                    String remainingIds = "";
-                                    for (String s : joinedIdsArray) {
-                                        if (!s.equals(finalUId)) {
-                                            remainingIds += s + ",";
-                                        }
-                                    }
-                                    hash2.put("finishedId", remainingIds);
-                                    new UpdateQueueAsync(current.getQueueId(), hash2, result2 -> {
-                                        resetQueue(process, current.getQueueId(), current);
-                                    });
-                                });
+                                curr.setDelayed(false);
+                                curr.setJoinDate(LocalDateTime.now().toString());
                             }
+                            hash.put("queueOwner", queueOwner);
+                            hash.put("users", userJoinStatus);
+                            String finalUId = uId;
+                            new UpdateJoinAsync(current.getQueueId(), hash, result -> {
+                                HashMap<String, Object> hash2 = new HashMap<>();
+                                hash2.put("counter", current.getCounter());
+                                hash2.put("createdAt", current.getCreatedAt());
+                                hash2.put("endedAt", current.getEndedAt());
+                                hash2.put("field", current.getField());
+                                hash2.put("isFinished", current.getIsFinished());
+                                hash2.put("location", current.getLocation());
+                                hash2.put("maxSize", current.getMaxSize());
+                                hash2.put("mue", current.getMue());
+                                hash2.put("ownerId", current.getOwnerId());
+                                hash2.put("queueId", current.getQueueId());
+                                hash2.put("queueName", current.getQueueName());
+                                hash2.put("lambda", current.getLambda());
+                                String joinedId = current.getFinishedId();
+                                String[] joinedIdsArray = joinedId.split(",");
+                                String remainingIds = "";
+                                for (String s : joinedIdsArray) {
+                                    if (!s.equals(finalUId)) {
+                                        remainingIds += s + ",";
+                                    }
+                                }
+                                hash2.put("finishedId", remainingIds);
+                                new UpdateQueueAsync(current.getQueueId(), hash2, result2 -> {
+                                    resetQueue(process, current.getQueueId(), current);
+                                });
+                            });
                         }
                     });
                 } else {
@@ -144,7 +145,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                         hash2.put("queueName", current.getQueueName());
                         hash2.put("lambda", current.getLambda());
                         String joinedId = current.getFinishedId();
-                        if (joinedId == null){
+                        if (joinedId == null) {
                             joinedId = "";
                         }
                         String[] joinedIdsArray = joinedId.split(",");
@@ -155,7 +156,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
                             }
                         }
                         hash2.put("finishedId", remainingIds.toString());
-                        new UpdateQueueAsync(current.getQueueId(), hash2, result2->{
+                        new UpdateQueueAsync(current.getQueueId(), hash2, result2 -> {
                             removeCurrentUserFromQueue(process, current.getQueueId());
                         });
                     });
@@ -254,7 +255,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
     @Override
     public int getItemCount() {
-        return queues.size();
+        return dataSet.size();
     }
 
     private void setAllDelayed(Users users, String queueId) {
@@ -429,8 +430,41 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         return time;
     }
 
+    @Override
+    public Filter getFilter() {
+        return Searched_Filter;
+    }
+
+    private Filter Searched_Filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<QueueModel> filteredList = new ArrayList<>();
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(FullList);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (QueueModel item : FullList) {
+                    if (item.getQueueName().toLowerCase().contains(filterPattern)
+                            || item.getField().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            dataSet.clear();
+            dataSet.addAll((ArrayList) results.values);
+            notifyDataSetChanged();
+        }
+    };
+
     public static class TicketViewHolder extends RecyclerView.ViewHolder {
-        private ImageView ivCode;
+        private final ImageView ivCode;
         private MaterialButton btnJoin, btnNext, btnQuit;
         private TextView tvEstimation, tvWaiting, tvMax, tvQueuing, txt_code, edtFieldName;
         private TicketView ticket;
