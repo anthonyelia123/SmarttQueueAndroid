@@ -15,7 +15,9 @@ public class GetJoinAsync {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         assert user != null;
+
         DocumentReference docRef = db.collection("join").document(queueId);
+
         docRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().getData() == null) {

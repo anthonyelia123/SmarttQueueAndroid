@@ -3,7 +3,9 @@ package me.queue.smartqueue.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,12 +40,8 @@ public class LoginActivity extends AppCompatActivity {
 
         //initialize components by id
         firebaseAuth = FirebaseAuth.getInstance();
-        binding.loginbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginUser();
-            }
-        });
+        binding.loginbutton.setOnClickListener(v -> loginUser());
+
         Intent login = new Intent(LoginActivity.this, SignupActivity.class);
         binding.adminSignup.setOnClickListener(v -> {
             login.putExtra("role", "admin");

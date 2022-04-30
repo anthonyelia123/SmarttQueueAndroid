@@ -25,7 +25,9 @@ public class GetAllQueuesAsync {
                             document.getString("createdAt"),
                             document.getString("endedAt"),
                             document.getString("ownerId"),
-                            new LatLongModel(document.getString("latitude"), document.getString("longitude")),
+                            new LatLongModel(
+                                    document.getString("latitude"),
+                                    document.getString("longitude")),
                             document.getString("maxSize"),
                             document.getString("mue"),
                             document.getString("lambda"),

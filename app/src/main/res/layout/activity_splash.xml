@@ -17,6 +17,7 @@
         android:src="@drawable/splash" />
 
     <TextView
+        android:id="@+id/intro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/imageview_logo"
@@ -25,9 +26,6 @@
         android:textColor="@color/colorPrimary"
         android:textSize="30dp"
         android:layout_centerHorizontal="true"
-        android:textAlignment="center"
-
-
-        ></TextView>
+        android:textAlignment="center"/>
 
 </RelativeLayout>
