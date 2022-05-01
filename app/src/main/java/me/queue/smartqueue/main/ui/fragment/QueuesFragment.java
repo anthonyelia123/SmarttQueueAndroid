@@ -24,7 +24,9 @@ import java.util.HashMap;
 import es.dmoral.toasty.Toasty;
 import me.queue.smartqueue.common.async.GetAllQueuesAsync;
 import me.queue.smartqueue.common.async.GetJoinAsync;
+import me.queue.smartqueue.common.async.GetSpeceficUser;
 import me.queue.smartqueue.common.async.SetJoinAsync;
+import me.queue.smartqueue.common.models.Users;
 import me.queue.smartqueue.common.models.UserJoinStatus;
 import me.queue.smartqueue.databinding.FragmentQueuesBinding;
 import me.queue.smartqueue.main.data.models.LatLongModel;
@@ -35,6 +37,8 @@ public class QueuesFragment extends Fragment {
     private FragmentQueuesBinding binding;
     private String userId;
     private TicketAdapter adapter;
+    private String firstName;
+    private String lastName;
 
     public QueuesFragment() {
         // Required empty public constructor
@@ -52,30 +56,34 @@ public class QueuesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null)
-            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        binding.srRefresh.setRefreshing(true);
-        setupAdapter();
-        binding.srRefresh.setOnRefreshListener(() -> {
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        new GetSpeceficUser(userId, call ->{
+            firstName = call.getFirstname();
+            lastName = call.getLastname();
+
             binding.srRefresh.setRefreshing(true);
             setupAdapter();
-        });
-        final Handler handler = new Handler();
-        // Do something after 5s = 5000ms
-        handler.postDelayed(this::setupAdapter, 30000);
+            binding.srRefresh.setOnRefreshListener(() -> {
+                binding.srRefresh.setRefreshing(true);
+                setupAdapter();
+            });
+            final Handler handler = new Handler();
+            // Do something after 5s = 5000ms
+            handler.postDelayed(this::setupAdapter, 30000);
 
-        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
+            binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.getFilter().filter(newText);
-                return false;
-            }
-        });
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    adapter.getFilter().filter(newText);
+                    return false;
+                }
+            });
+
 
     }
 
@@ -85,13 +93,17 @@ public class QueuesFragment extends Fragment {
                 if (queue != null) {
                     new GetJoinAsync(queue.getQueueId(), process -> {
                         ArrayList<UserJoinStatus> join;
+                        int server = getCorrespondingServer(process, Integer.parseInt(queue.getCounter()));
                         if (process != null) {
                             join = new ArrayList<>(process.getUsers());
                             join.add(new UserJoinStatus(
                                     LocalDateTime.now().toString(),
                                     false,
                                     userId,
-                                    false
+                                    false,
+                                    server,
+                                    firstName,
+                                    lastName
                             ));
                             HashMap<String, Object> map = new HashMap<>();
                             map.put("queueOwner", queue.getOwnerId());
@@ -107,7 +119,10 @@ public class QueuesFragment extends Fragment {
                                     LocalDateTime.now().toString(),
                                     false,
                                     userId,
-                                    false
+                                    false,
+                                    server,
+                                    firstName,
+                                    lastName
                             ));
                             HashMap<String, Object> map = new HashMap<>();
                             map.put("queueOwner", queue.getOwnerId());
@@ -132,6 +147,28 @@ public class QueuesFragment extends Fragment {
         });
     }
 
+    private int getCorrespondingServer(Users joinModel, int serverNb){
+        if(joinModel == null){
+            return 1;
+        }
+        int[] servers = new int[serverNb];
+        for(UserJoinStatus userJoining: joinModel.getUsers()){
+            int server = userJoining.getServer();
+            if(server > 0){
+                servers[server - 1]++;
+            }
+        }
+        int minimumServer = servers[0];
+        int serverToReturn = 1;
+        for(int i = 0; i< servers.length; i++){
+            if(servers[i] < minimumServer){
+                minimumServer = servers[i];
+                serverToReturn = i + 1;
+            }
+        }
+        return serverToReturn;
+    }
+
     private ArrayList<QueueModel> filterList(ArrayList<QueueModel> all) {
         ArrayList<QueueModel> filteredQueues = new ArrayList<>();
         ArrayList<QueueModel> priorityQueues = new ArrayList<>();
@@ -141,11 +178,11 @@ public class QueuesFragment extends Fragment {
                 queue.isAdmin = true;
             }
             try {
-                if (queue.getFinishedId().contains(userId)) {
-                    priorityQueues.add(queue);
-                } else {
-                    remainingQueues.add(queue);
-                }
+            if(queue.getJoiningId().contains(userId)){
+                priorityQueues.add(queue);
+            } else {
+                remainingQueues.add(queue);
+            }
             } catch (Exception e) {
                 remainingQueues.add(queue);
             }
