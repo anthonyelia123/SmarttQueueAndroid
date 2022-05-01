@@ -2,6 +2,7 @@ package me.queue.smartqueue.main.ui.adapters;
 
 import static me.queue.utils.GlobalVars.isFirstTime;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -78,6 +79,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
         return new TicketViewHolder(singleRow);
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull TicketViewHolder holder, int position) {
         try {
@@ -533,8 +535,8 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            dataSet.clear();
-            dataSet.addAll((ArrayList) results.values);
+            queues.clear();
+            queues.addAll((ArrayList) results.values);
             notifyDataSetChanged();
         }
     };
@@ -542,8 +544,9 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
     public static class TicketViewHolder extends RecyclerView.ViewHolder {
         private ImageView ivCode;
         private MaterialButton btnJoin, btnNext, btnQuit;
-        private TextView tvEstimation,tvWaiting,tvMax,tvQueuing, txt_code;
+        private TextView tvEstimation,tvWaiting,tvMax,tvQueuing, txt_code, edtFieldName;
         private Spinner spinner;
+        private View ticket;
 
         public TicketViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -557,6 +560,8 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
             txt_code = itemView.findViewById(R.id.txt_code);
             btnQuit = itemView.findViewById(R.id.btnQuit);
             spinner = itemView.findViewById(R.id.spinner);
+            edtFieldName = itemView.findViewById(R.id.edtFieldName);
+            ticket = itemView.findViewById(R.id.ticket);
         }
     }
 

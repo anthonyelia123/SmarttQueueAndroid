@@ -57,7 +57,7 @@ public class QueuesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        new GetSpeceficUser(userId, call ->{
+        new GetSpeceficUser(userId, call -> {
             firstName = call.getFirstname();
             lastName = call.getLastname();
 
@@ -84,6 +84,7 @@ public class QueuesFragment extends Fragment {
                 }
             });
 
+        });
 
     }
 
