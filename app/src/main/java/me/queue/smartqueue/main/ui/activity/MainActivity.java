@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -45,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
 //        firebaseAuth = FirebaseAuth.getInstance();
+
         moveToFirst();
 
         binding.tabMain.addTab(binding.tabMain.newTab().setText("My Queues"));

@@ -3,6 +3,8 @@ package me.queue.smartqueue.main.data.models;
 import com.google.firebase.database.PropertyName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QueueModel implements Serializable {
     @PropertyName("queueName")
@@ -29,8 +31,8 @@ public class QueueModel implements Serializable {
     private String field;
     @PropertyName("counter")
     private String counter;
-    @PropertyName("finishedId")
-    private String finishedId;
+    @PropertyName("joiningId")
+    private String joiningId;
 
     public boolean isAdmin = false;
 
@@ -48,7 +50,7 @@ public class QueueModel implements Serializable {
         this.lambda = lambda;
         this.field = field;
         this.counter = counter;
-        this.finishedId = finishedId;
+        this.joiningId = joiningId;
     }
 
     public String getCounter() {
@@ -111,12 +113,12 @@ public class QueueModel implements Serializable {
         this.isFinished = isFinished;
     }
 
-    public String getFinishedId() {
-        return finishedId;
+    public String getJoiningId() {
+        return joiningId;
     }
 
-    public void setFinishedId(String finishedId) {
-        this.finishedId = finishedId;
+    public void setJoiningId(String joiningId) {
+        this.joiningId = joiningId;
     }
 
     public void setOwnerId(String ownerId) {

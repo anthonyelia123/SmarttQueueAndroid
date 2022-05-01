@@ -14,7 +14,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -75,7 +77,6 @@ public class CreateEditActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MapsActivity.class);
             startActivityForResult(intent, 2);// Activity is started with requestCode 2
         };
-
 
         binding.textField6.setOnClickListener(listener);
         binding.tvLocation.setOnClickListener(listener);
@@ -150,11 +151,11 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("maxSize", localFunctions.getTrimmedText(binding.etMaxQty));
                 fieldsData.put("mue", localFunctions.getTrimmedText(binding.etMue));
                 fieldsData.put("lambda", localFunctions.getTrimmedText(binding.etlambda));
-                fieldsData.put("location", latLng);
+                fieldsData.put("location", location);
                 fieldsData.put("field", queueModel.getField());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
-                fieldsData.put("finishedId", "");
-                new SetQueueAsync(fieldsData, queueModel.getQueueId(), success -> {
+                fieldsData.put("joiningId", "");
+                new SetQueueAsync(fieldsData,queueModel.getQueueId(), success -> {
                     if (success) {
                         Toasty.success(this, "Success! Queue Added/Edited Successfully", Toasty.LENGTH_SHORT).show();
                         finish();
@@ -172,11 +173,11 @@ public class CreateEditActivity extends AppCompatActivity {
                 fieldsData.put("maxSize", localFunctions.getTrimmedText(binding.etMaxQty));
                 fieldsData.put("mue", localFunctions.getTrimmedText(binding.etMue));
                 fieldsData.put("lambda", localFunctions.getTrimmedText(binding.etlambda));
-                fieldsData.put("location", latLng.toString());
+                fieldsData.put("location", location);
                 fieldsData.put("field", binding.spFields.getText().toString());
                 fieldsData.put("counter", String.valueOf(binding.etNbCounter.getText()));
-                fieldsData.put("finishedId", "");
-                new SetQueueAsync(fieldsData, UUIDStr, success -> {
+                fieldsData.put("joiningId", "");
+                new SetQueueAsync(fieldsData,UUIDStr, success -> {
                     if (success) {
                         Toasty.success(this, "Success! Queue Added/Edited Successfully", Toasty.LENGTH_SHORT).show();
                         finish();

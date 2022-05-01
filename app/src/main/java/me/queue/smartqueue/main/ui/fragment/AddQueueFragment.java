@@ -2,9 +2,11 @@ package me.queue.smartqueue.main.ui.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,10 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 import me.queue.smartqueue.common.async.GetAllQueuesAsync;
 import me.queue.smartqueue.createeditqueue.CreateEditActivity;
+import me.queue.smartqueue.createeditqueue.QueuesAdapter;
 import me.queue.smartqueue.databinding.FragmentAddQueueBinding;
 import me.queue.smartqueue.main.adapter.AddQueueAdapter;
 import me.queue.smartqueue.main.data.models.QueueModel;
@@ -75,7 +80,6 @@ public class AddQueueFragment extends Fragment {
             }
         });
     }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
